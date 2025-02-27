@@ -1,5 +1,5 @@
 # ColorGen - Figma Plugin 🎨
-A Figma plugin to generate and apply random colors, pallettes and gradients.
+A Figma plugin to generate and apply random colors, pallettes and gradients. Access and try it out here: https://www.figma.com/community/plugin/1434925391733768843/colorgen
 
 ## Features
 - Generates random color color palletes
