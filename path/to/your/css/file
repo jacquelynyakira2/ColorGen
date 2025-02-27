@@ -1,0 +1,4 @@
+.color-type-dropdown {
+  width: 100%; /* Make the dropdown full width */
+  max-width: none; /* Remove any max-width restrictions */
+}

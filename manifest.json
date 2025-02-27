@@ -1,0 +1,17 @@
+{
+  "name": "ColorGen",
+  "id": "1434925391733768843",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": [
+    "figma"
+  ],
+  "networkAccess": {
+    "allowedDomains": [
+      "https://cdn.tailwindcss.com",
+      "https://cdn.jsdelivr.net"
+    ]
+  },
+  "documentAccess": "dynamic-page"
+}
