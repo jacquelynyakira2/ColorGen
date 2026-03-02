@@ -7,16 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/culori@4.0.1/bundled/culori.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
         /* Custom styles for the UI elements */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #ffffff;
-            width: 375px;
-            height: 700px; /* Set height to accommodate sticky header and footer */
-            margin: 0 auto;
+            margin: 0;
             display: flex;
             flex-direction: column;
         }
@@ -57,9 +61,17 @@
         .content {
             flex: 1;
             width: 100%;
+            overflow-y: auto;
         }
         .gradient-container {
             width: 100%;
+        }
+        #feature-view {
+            min-height: 0;
+        }
+        #feature-content {
+            overflow-y: auto;
+            min-height: 0;
         }
         .font-mono {
             font-family: 'Source Code Pro', monospace;
@@ -246,6 +258,73 @@
             padding: 8px;
             color: #000000;
         }
+        .resize-handle-corner {
+            position: fixed;
+            right: 6px;
+            bottom: 6px;
+            width: 14px;
+            height: 14px;
+            cursor: nwse-resize;
+            z-index: 30;
+            background: linear-gradient(135deg, transparent 0 35%, #9CA3AF 35% 45%, transparent 45% 55%, #9CA3AF 55% 65%, transparent 65%);
+            border-radius: 3px;
+            opacity: 0.7;
+        }
+        .resize-handle-right {
+            position: fixed;
+            right: 0;
+            top: 72px;
+            bottom: 24px;
+            width: 8px;
+            cursor: ew-resize;
+            z-index: 25;
+        }
+        .resize-handle-bottom {
+            position: fixed;
+            left: 0;
+            right: 24px;
+            bottom: 0;
+            height: 8px;
+            cursor: ns-resize;
+            z-index: 25;
+        }
+        .scale-range {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 24px;
+            background: transparent;
+        }
+        .scale-range::-webkit-slider-runnable-track {
+            height: 12px;
+            border-radius: 999px;
+            border: 1px solid #9CA3AF;
+            background: var(--scale-track, #E5E7EB);
+        }
+        .scale-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid #ffffff;
+            background: #111827;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            margin-top: -7px;
+        }
+        .scale-range::-moz-range-track {
+            height: 12px;
+            border-radius: 999px;
+            border: 1px solid #9CA3AF;
+            background: var(--scale-track, #E5E7EB);
+        }
+        .scale-range::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            border: 2px solid #ffffff;
+            background: #111827;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
     </style>
 </head>
 <body class="bg-[#FFFFFF] h-screen flex flex-col text-[#1D1D1F]">
@@ -257,7 +336,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" class="mr-2">
                     <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-83 32.5-156t88-127Q256-817 330-848.5T488-880q80 0 151 27.5t124.5 76q53.5 48.5 85 115T880-518q0 115-70 176.5T640-280h-74q-9 0-12.5 5t-3.5 11q0 12 15 34.5t15 51.5q0 50-27.5 74T480-80Zm0-400Zm-220 40q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120-160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm200 0q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm120 160q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17ZM480-160q9 0 14.5-5t5.5-13q0-14-15-33t-15-57q0-42 29-67t71-25h70q66 0 113-38.5T800-518q0-121-92.5-201.5T488-800q-136 0-232 93t-96 227q0 133 93.5 226.5T480-160Z"/>
                 </svg>
-                <span style="font-size: 16px;">Color Generator</span>
+                <span style="font-size: 16px;">Color Palette</span>
             </div>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -279,7 +358,7 @@
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                 </svg>
-                <span style="font-size: 16px;">Color Scale</span>
+                <span style="font-size: 16px;">Tailwind CSS</span>
             </div>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -311,9 +390,15 @@
             <h2 id="feature-title" class="text-sm font-regular"></h2>
         </header>
         <!-- Content area for the selected feature -->
-        <div id="feature-content" class="flex-grow p-4 w-full h-full"></div>
+        <div id="feature-content" class="flex-grow p-4 w-full"></div>
         <!-- Footer with action buttons -->
         <footer class="sticky bottom-0 bg-white">
+            <div id="variables-toggle-row" class="px-4 pt-3 hidden">
+                <label class="inline-flex items-center text-xs text-gray-700 gap-2 cursor-pointer select-none">
+                    <input id="create-variables-toggle" type="checkbox" class="h-4 w-4">
+                    <span>Create variables in Figma</span>
+                </label>
+            </div>
             <div class="p-4 flex justify-between items-center border-t border-[#D1D5DB]">
                 <button id="generate-button" class="bg-white hover:bg-gray-100 text-black font-regular py-2 px-4 rounded-[24px] border-2 border-black flex-grow mr-2 transition-colors">
                     Generate
@@ -326,6 +411,9 @@
             </div>
         </footer>
     </div>
+    <div id="resize-handle-right" class="resize-handle-right"></div>
+    <div id="resize-handle-bottom" class="resize-handle-bottom"></div>
+    <div id="resize-handle-corner" class="resize-handle-corner"></div>
 
     <script>
         // Global variables
@@ -333,6 +421,34 @@
         let currentStreak = 0;
         let bestStreak = 0;
         const STREAK_MILESTONES = [3, 5, 10, 15, 20, 25, 30];
+        let scaleRegenerateTimeout = null;
+        let isResizingWindow = false;
+        let resizeMode = 'corner';
+        let resizeStartX = 0;
+        let resizeStartY = 0;
+        let resizeStartWidth = 0;
+        let resizeStartHeight = 0;
+        const TAILWIND_SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+        const GRADIENT_PRESET_OPTIONS = [
+            'Aurora Flow',
+            'Sunset Heat',
+            'Forest Mist',
+            'Royal Velvet',
+            'Citrus Pop',
+            'Ocean Drift',
+            'Neon Pulse'
+        ];
+        const GRADIENT_TYPE_OPTIONS = [
+            { value: 'auto', label: 'Type: Auto' },
+            { value: 'GRADIENT_LINEAR', label: 'Linear' },
+            { value: 'GRADIENT_RADIAL', label: 'Radial' },
+            { value: 'GRADIENT_ANGULAR', label: 'Angular' },
+            { value: 'GRADIENT_DIAMOND', label: 'Diamond' }
+        ];
+        let currentFeatureName = '';
+        let gradientPresetSelection = 'auto';
+        let gradientTypeSelection = 'auto';
+        let gradientStopSelection = 'auto';
 
         // Game-specific global variables
         let gameStyle = 'modern';
@@ -343,12 +459,121 @@
         let gameOver = false;
         let highestScore = 0;
 
-        function generateRandomColor() {
+        function clampGameValue(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function getGameDifficultyConfig(currentScore = score) {
+            if (currentScore >= 20) {
+                return {
+                    level: 'Expert',
+                    tiles: 16,
+                    columnsClass: 'grid-cols-4',
+                    hueBase: 6.5,
+                    hueMin: 2.2,
+                    satBase: 5,
+                    satMin: 1.2,
+                    lightBase: 5,
+                    lightMin: 1.2,
+                    baseSatRange: [32, 74],
+                    baseLightRange: [30, 66]
+                };
+            }
+            if (currentScore >= 12) {
+                return {
+                    level: 'Hard',
+                    tiles: 12,
+                    columnsClass: 'grid-cols-4',
+                    hueBase: 9,
+                    hueMin: 3.2,
+                    satBase: 7,
+                    satMin: 2,
+                    lightBase: 6,
+                    lightMin: 2,
+                    baseSatRange: [42, 84],
+                    baseLightRange: [34, 64]
+                };
+            }
+            if (currentScore >= 5) {
+                return {
+                    level: 'Medium',
+                    tiles: 9,
+                    columnsClass: 'grid-cols-3',
+                    hueBase: 12,
+                    hueMin: 5.2,
+                    satBase: 7,
+                    satMin: 2.8,
+                    lightBase: 0,
+                    lightMin: 0,
+                    baseSatRange: [55, 92],
+                    baseLightRange: [38, 62]
+                };
+            }
+            return {
+                level: 'Easy',
+                tiles: 6,
+                columnsClass: 'grid-cols-3',
+                hueBase: 18,
+                hueMin: 8.5,
+                satBase: 0,
+                satMin: 0,
+                lightBase: 0,
+                lightMin: 0,
+                baseSatRange: [68, 100],
+                baseLightRange: [40, 60]
+            };
+        }
+
+        function generateRandomColor(config = getGameDifficultyConfig(score)) {
+            const satMin = config.baseSatRange[0];
+            const satMax = config.baseSatRange[1];
+            const lightMin = config.baseLightRange[0];
+            const lightMax = config.baseLightRange[1];
             return {
                 h: Math.floor(Math.random() * 360),
-                s: 70 + Math.floor(Math.random() * 31), // 70-100 for more vibrant colors
-                l: 40 + Math.floor(Math.random() * 21), // 40-60 for medium brightness
+                s: Math.floor(satMin + Math.random() * (satMax - satMin + 1)),
+                l: Math.floor(lightMin + Math.random() * (lightMax - lightMin + 1)),
             };
+        }
+
+        function getCurrentRoundDifference(config) {
+            const attenuation = 1 / Math.sqrt(Math.max(1, difficulty));
+            return {
+                hue: Math.max(config.hueMin, config.hueBase * attenuation),
+                sat: Math.max(config.satMin, config.satBase * attenuation),
+                light: Math.max(config.lightMin, config.lightBase * attenuation)
+            };
+        }
+
+        function createDifferentGameColor(baseColor, config) {
+            const difference = getCurrentRoundDifference(config);
+            const hueDirection = Math.random() < 0.5 ? -1 : 1;
+            const satDirection = Math.random() < 0.5 ? -1 : 1;
+            const lightDirection = Math.random() < 0.5 ? -1 : 1;
+
+            const nextHue = (baseColor.h + hueDirection * difference.hue + 360) % 360;
+            const nextSaturation = clampGameValue(
+                baseColor.s + satDirection * difference.sat,
+                8,
+                100
+            );
+            const nextLightness = clampGameValue(
+                baseColor.l + lightDirection * difference.light,
+                8,
+                92
+            );
+
+            return {
+                h: nextHue,
+                s: config.satBase > 0 ? nextSaturation : baseColor.s,
+                l: config.lightBase > 0 ? nextLightness : baseColor.l
+            };
+        }
+
+        function startNextGameRound() {
+            const config = getGameDifficultyConfig(score);
+            currentHSLColor = generateRandomColor(config);
+            differentColorIndex = Math.floor(Math.random() * config.tiles);
         }
 
         function hslToHex(h, s, l) {
@@ -360,6 +585,137 @@
                 return Math.round(255 * color).toString(16).padStart(2, '0');
             };
             return `#${f(0)}${f(8)}${f(4)}`;
+        }
+
+        function escapeHtmlUi(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatGradientTypeLabelUi(typeValue) {
+            switch (String(typeValue || '').toUpperCase()) {
+                case 'GRADIENT_RADIAL':
+                    return 'Radial';
+                case 'GRADIENT_ANGULAR':
+                    return 'Angular';
+                case 'GRADIENT_DIAMOND':
+                    return 'Diamond';
+                case 'GRADIENT_LINEAR':
+                default:
+                    return 'Linear';
+            }
+        }
+
+        function createGradientControlsHTML(generatedMeta = {}) {
+            const autoMoodLabel = generatedMeta.presetName
+                ? `Mood: Auto (${generatedMeta.presetName})`
+                : 'Mood: Auto';
+            const autoTypeLabel = generatedMeta.gradientType
+                ? `Type: Auto (${formatGradientTypeLabelUi(generatedMeta.gradientType)})`
+                : 'Type: Auto';
+            const autoStopLabel = generatedMeta.stopCount
+                ? `Stops: Auto (${generatedMeta.stopCount})`
+                : 'Stops: Auto';
+            const presetOptionsHtml = [
+                `<option value="auto"${gradientPresetSelection === 'auto' ? ' selected' : ''}>${escapeHtmlUi(autoMoodLabel)}</option>`,
+                ...GRADIENT_PRESET_OPTIONS.map((preset) =>
+                    `<option value="${escapeHtmlUi(preset)}"${gradientPresetSelection === preset ? ' selected' : ''}>${escapeHtmlUi(preset)}</option>`
+                )
+            ].join('');
+            const typeOptionsHtml = GRADIENT_TYPE_OPTIONS
+                .map((option) => {
+                    const label = option.value === 'auto' ? autoTypeLabel : option.label;
+                    return `<option value="${escapeHtmlUi(option.value)}"${gradientTypeSelection === option.value ? ' selected' : ''}>${escapeHtmlUi(label)}</option>`;
+                })
+                .join('');
+            const stopOptionsHtml = [
+                `<option value="auto"${gradientStopSelection === 'auto' ? ' selected' : ''}>${escapeHtmlUi(autoStopLabel)}</option>`,
+                `<option value="2"${gradientStopSelection === '2' ? ' selected' : ''}>2 Stops</option>`,
+                `<option value="3"${gradientStopSelection === '3' ? ' selected' : ''}>3 Stops</option>`,
+                `<option value="4"${gradientStopSelection === '4' ? ' selected' : ''}>4 Stops</option>`,
+                `<option value="5"${gradientStopSelection === '5' ? ' selected' : ''}>5 Stops</option>`,
+                `<option value="6"${gradientStopSelection === '6' ? ' selected' : ''}>6 Stops</option>`,
+                `<option value="7"${gradientStopSelection === '7' ? ' selected' : ''}>7 Stops</option>`
+            ].join('');
+
+            return `
+                <div class="grid grid-cols-3 gap-1">
+                    <select id="gradient-preset-select" class="text-[11px] border border-gray-300 rounded px-1 py-1 bg-white min-w-0">
+                        ${presetOptionsHtml}
+                    </select>
+                    <select id="gradient-type-select" class="text-[11px] border border-gray-300 rounded px-1 py-1 bg-white min-w-0">
+                        ${typeOptionsHtml}
+                    </select>
+                    <select id="gradient-stop-select" class="text-[11px] border border-gray-300 rounded px-1 py-1 bg-white min-w-0">
+                        ${stopOptionsHtml}
+                    </select>
+                </div>
+            `;
+        }
+
+        function readGradientHeaderSelections() {
+            const presetElement = document.getElementById('gradient-preset-select');
+            const typeElement = document.getElementById('gradient-type-select');
+            const stopElement = document.getElementById('gradient-stop-select');
+
+            if (presetElement) {
+                gradientPresetSelection = presetElement.value || 'auto';
+            }
+            if (typeElement) {
+                gradientTypeSelection = typeElement.value || 'auto';
+            }
+            if (stopElement) {
+                gradientStopSelection = stopElement.value || 'auto';
+            }
+        }
+
+        function getGradientGenerationMessage() {
+            readGradientHeaderSelections();
+            const message = { type: 'generate-gradient' };
+            if (gradientPresetSelection && gradientPresetSelection !== 'auto') {
+                message.presetName = gradientPresetSelection;
+            }
+            if (gradientTypeSelection && gradientTypeSelection !== 'auto') {
+                message.gradientType = gradientTypeSelection;
+            }
+            if (gradientStopSelection && gradientStopSelection !== 'auto') {
+                const stopCount = Number(gradientStopSelection);
+                if (Number.isFinite(stopCount)) {
+                    message.stopCount = stopCount;
+                }
+            }
+            return message;
+        }
+
+        function requestGradientGeneration() {
+            parent.postMessage({ pluginMessage: getGradientGenerationMessage() }, '*');
+        }
+
+        function initializeGradientHeaderControls() {
+            const controlSlot = document.getElementById('gradient-control-slot');
+            if (!controlSlot) return;
+
+            const generatedStops = Number(controlSlot.dataset.generatedStops);
+            const generatedMeta = {
+                presetName: controlSlot.dataset.generatedPreset || '',
+                gradientType: controlSlot.dataset.generatedType || '',
+                stopCount: Number.isFinite(generatedStops) ? generatedStops : 0
+            };
+            controlSlot.innerHTML = createGradientControlsHTML(generatedMeta);
+
+            const presetElement = document.getElementById('gradient-preset-select');
+            const typeElement = document.getElementById('gradient-type-select');
+            const stopElement = document.getElementById('gradient-stop-select');
+            [presetElement, typeElement, stopElement].forEach((element) => {
+                if (!element) return;
+                element.addEventListener('change', () => {
+                    readGradientHeaderSelections();
+                    requestGradientGeneration();
+                });
+            });
         }
 
         // Function to initialize color pickers
@@ -499,6 +855,7 @@
         function showFeatureView(title, content, containerHeight) {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('feature-view').classList.remove('hidden');
+            currentFeatureName = title;
             
             // Create header content with style toggle for Fun feature
             let headerContent = title;
@@ -529,7 +886,10 @@
             document.getElementById('feature-title').innerHTML = headerContent;
             const featureContent = document.getElementById('feature-content');
             featureContent.innerHTML = content;
-            featureContent.style.height = containerHeight || 'auto';
+            featureContent.style.height = '';
+            if (containerHeight === '100%') {
+                featureContent.style.height = '100%';
+            }
             
             // Add event listeners for style buttons if they exist
             const modernBtn = document.getElementById('modern-style-btn');
@@ -541,38 +901,112 @@
             if (win95Btn) {
                 win95Btn.addEventListener('click', () => switchGameStyle('win95'));
             }
+            if (title === 'Gradient') {
+                initializeGradientHeaderControls();
+            }
             
             // Rest of the existing showFeatureView code...
             const generateButton = document.getElementById('generate-button');
             const addToFigmaButton = document.getElementById('add-to-figma-button');
             const footerDiv = document.querySelector('.p-4.border-t');
+            const variablesToggleRow = document.getElementById('variables-toggle-row');
             
             if (title === 'Fun') {
                 generateButton.style.display = 'none';
                 addToFigmaButton.style.display = 'none';
                 if (footerDiv) footerDiv.style.display = 'none';
-            } else if (title === 'Color Palette' || title === 'Color Scale') {
+                if (variablesToggleRow) variablesToggleRow.style.display = 'none';
+            } else if (title === 'Color Palette' || title === 'Tailwind CSS') {
                 generateButton.style.display = 'block';
                 addToFigmaButton.style.display = 'block';
                 if (footerDiv) footerDiv.style.display = 'flex';
+                if (variablesToggleRow) variablesToggleRow.style.display = 'block';
             } else if (title === 'Gradient') {
                 generateButton.style.display = 'block';
                 addToFigmaButton.style.display = 'none';
                 if (footerDiv) footerDiv.style.display = 'flex';
+                if (variablesToggleRow) variablesToggleRow.style.display = 'none';
             } else {
                 generateButton.style.display = 'none';
                 addToFigmaButton.style.display = 'block';
                 if (footerDiv) footerDiv.style.display = 'flex';
+                if (variablesToggleRow) variablesToggleRow.style.display = 'none';
             }
             
             initializeColorPickers();
             initializeGradientPreview();
+            initializeScaleControls();
         }
 
         // Function to show the main menu
         function showMainMenu() {
             document.getElementById('feature-view').classList.add('hidden');
             document.getElementById('main-menu').classList.remove('hidden');
+        }
+
+        function startWindowResize(mode, event) {
+            isResizingWindow = true;
+            resizeMode = mode;
+            resizeStartX = event.clientX;
+            resizeStartY = event.clientY;
+            resizeStartWidth = window.innerWidth;
+            resizeStartHeight = window.innerHeight;
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor =
+                mode === 'right' ? 'ew-resize' :
+                mode === 'bottom' ? 'ns-resize' :
+                'nwse-resize';
+            event.preventDefault();
+        }
+
+        function handleWindowResizeMove(event) {
+            if (!isResizingWindow) return;
+
+            const deltaX = event.clientX - resizeStartX;
+            const deltaY = event.clientY - resizeStartY;
+
+            let nextWidth = resizeStartWidth;
+            let nextHeight = resizeStartHeight;
+
+            if (resizeMode === 'right' || resizeMode === 'corner') {
+                nextWidth = resizeStartWidth + deltaX;
+            }
+            if (resizeMode === 'bottom' || resizeMode === 'corner') {
+                nextHeight = resizeStartHeight + deltaY;
+            }
+
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'resize-ui',
+                    width: nextWidth,
+                    height: nextHeight
+                }
+            }, '*');
+        }
+
+        function stopWindowResize() {
+            isResizingWindow = false;
+            document.body.style.userSelect = '';
+            document.body.style.cursor = '';
+        }
+
+        function initializeResizeHandles() {
+            const rightHandle = document.getElementById('resize-handle-right');
+            const bottomHandle = document.getElementById('resize-handle-bottom');
+            const cornerHandle = document.getElementById('resize-handle-corner');
+
+            if (rightHandle) {
+                rightHandle.addEventListener('mousedown', (event) => startWindowResize('right', event));
+            }
+            if (bottomHandle) {
+                bottomHandle.addEventListener('mousedown', (event) => startWindowResize('bottom', event));
+            }
+            if (cornerHandle) {
+                cornerHandle.addEventListener('mousedown', (event) => startWindowResize('corner', event));
+            }
+
+            window.addEventListener('mousemove', handleWindowResizeMove);
+            window.addEventListener('mouseup', stopWindowResize);
         }
 
         // Event listeners for main menu buttons
@@ -582,22 +1016,22 @@
 
         document.getElementById('generateGradient').onclick = () => {
             console.log("Generate Gradient button clicked");
-            parent.postMessage({ pluginMessage: { type: 'generate-gradient' } }, '*');
+            requestGradientGeneration();
         };
 
         document.getElementById('generateScale').onclick = () => {
-            parent.postMessage({ pluginMessage: { type: 'generate-scale' } }, '*');
+            const randomHex = generateRandomScaleHex();
+            postTailwindScaleRequest(randomHex, '', false);
         };
 
         document.getElementById('startHSLGame').onclick = () => {
             // Initialize game state
             gameStyle = 'modern';
-            currentHSLColor = generateRandomColor();
-            differentColorIndex = Math.floor(Math.random() * 6);
             score = 0;
             currentStreak = 0;
             difficulty = 1;
             gameOver = false;
+            startNextGameRound();
             
             // Show game UI
             showFeatureView('Fun', createGameHTML(), 'auto');
@@ -615,6 +1049,7 @@
         };
 
         document.getElementById('back-button').onclick = showMainMenu;
+        initializeResizeHandles();
 
         // Functions to communicate with the main script
         function applyColor(color) {
@@ -635,12 +1070,330 @@
             parent.postMessage({ pluginMessage: { type: 'toggle-lock', index: index } }, '*');
         }
 
-        function addPaletteToFigma() {
-            parent.postMessage({ pluginMessage: { type: 'add-palette-to-figma' } }, '*');
+        function addPaletteToFigma(createVariables = true) {
+            parent.postMessage({ pluginMessage: { type: 'add-palette-to-figma', createVariables } }, '*');
         }
 
-        function addScaleToFigma() {
-            parent.postMessage({ pluginMessage: { type: 'add-scale-to-figma' } }, '*');
+        function addScaleToFigma(createVariables = true) {
+            parent.postMessage({ pluginMessage: { type: 'add-scale-to-figma', createVariables } }, '*');
+        }
+
+        function clampScaleValue(value, min, max, fallback) {
+            const parsed = Number(value);
+            if (Number.isNaN(parsed)) return fallback;
+            return Math.max(min, Math.min(max, Math.round(parsed)));
+        }
+
+        function normalizeHexInputUi(value) {
+            if (!value) return null;
+            const raw = String(value).trim().replace(/^#/, '').toLowerCase();
+            if (/^[0-9a-f]{3}$/.test(raw)) {
+                return `#${raw.split('').map(ch => ch + ch).join('')}`;
+            }
+            if (/^[0-9a-f]{6}$/.test(raw)) {
+                return `#${raw}`;
+            }
+            return null;
+        }
+
+        function generateRandomScaleHex() {
+            const h = Math.random() * 360;
+            const s = 65 + Math.random() * 25;
+            const l = 42 + Math.random() * 16;
+            return hslToHex(h, s, l).toUpperCase();
+        }
+
+        function clamp01(value) {
+            return Math.max(0, Math.min(1, value));
+        }
+
+        function generateScaleWithCulori(baseHex) {
+            const normalizedHex = normalizeHexInputUi(baseHex);
+            if (!normalizedHex) return null;
+            if (!window.culori || typeof window.culori.converter !== 'function' || typeof window.culori.interpolate !== 'function' || typeof window.culori.formatHex !== 'function') {
+                return null;
+            }
+
+            try {
+                const toOklch = window.culori.converter('oklch');
+                const interpolate = window.culori.interpolate;
+                const formatHex = window.culori.formatHex;
+                const base = toOklch(normalizedHex);
+                if (!base || !Number.isFinite(base.l)) {
+                    return null;
+                }
+
+                const baseHue = Number.isFinite(base.h) ? base.h : 0;
+                const baseChroma = Number.isFinite(base.c) ? base.c : 0.12;
+                const anchor = {
+                    mode: 'oklch',
+                    l: clamp01(base.l),
+                    c: Math.max(0.02, Math.min(0.32, baseChroma)),
+                    h: baseHue
+                };
+                const lightAnchor = {
+                    mode: 'oklch',
+                    l: 0.985,
+                    c: Math.max(0.005, anchor.c * 0.12),
+                    h: baseHue
+                };
+                const darkAnchor = {
+                    mode: 'oklch',
+                    l: 0.22,
+                    c: Math.max(0.01, anchor.c * 0.9),
+                    h: baseHue
+                };
+
+                const lightRamp = interpolate([lightAnchor, anchor], 'oklch');
+                const darkRamp = interpolate([anchor, darkAnchor], 'oklch');
+                const lightPositions = { 50: 0, 100: 0.16, 200: 0.34, 300: 0.56, 400: 0.8 };
+                const darkPositions = { 600: 0.16, 700: 0.34, 800: 0.56, 900: 0.78, 950: 1 };
+
+                const scale = [];
+                [50, 100, 200, 300, 400].forEach((shade) => {
+                    const colorHex = normalizeHexInputUi(formatHex(lightRamp(lightPositions[shade])));
+                    if (colorHex) {
+                        scale.push({ weight: shade, color: colorHex });
+                    }
+                });
+                scale.push({ weight: 500, color: normalizedHex });
+                [600, 700, 800, 900, 950].forEach((shade) => {
+                    const colorHex = normalizeHexInputUi(formatHex(darkRamp(darkPositions[shade])));
+                    if (colorHex) {
+                        scale.push({ weight: shade, color: colorHex });
+                    }
+                });
+
+                const byWeight = new Map(scale.map((entry) => [entry.weight, entry]));
+                return TAILWIND_SHADES.map((shade) => byWeight.get(shade)).filter(Boolean);
+            } catch (error) {
+                console.error('Failed to generate culori scale:', error);
+                return null;
+            }
+        }
+
+        function hexToHslUi(hex) {
+            const normalized = normalizeHexInputUi(hex);
+            if (!normalized) return null;
+            const color = normalized.replace('#', '');
+            const r = parseInt(color.substring(0, 2), 16) / 255;
+            const g = parseInt(color.substring(2, 4), 16) / 255;
+            const b = parseInt(color.substring(4, 6), 16) / 255;
+            const cmin = Math.min(r, g, b);
+            const cmax = Math.max(r, g, b);
+            const delta = cmax - cmin;
+            let h = 0;
+            let s = 0;
+            let l = 0;
+
+            if (delta !== 0) {
+                if (cmax === r) h = ((g - b) / delta) % 6;
+                else if (cmax === g) h = (b - r) / delta + 2;
+                else h = (r - g) / delta + 4;
+                h = Math.round(h * 60);
+                if (h < 0) h += 360;
+            }
+
+            l = (cmax + cmin) / 2;
+            s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+            return {
+                h: Math.round(h),
+                s: Math.round(s * 100),
+                l: Math.round(l * 100)
+            };
+        }
+
+        function updateScaleHslInputField() {
+            const inputValueElement = document.getElementById('scale-input-value');
+            const hValueElement = document.getElementById('scale-h-value');
+            const sValueElement = document.getElementById('scale-s-value');
+            const lValueElement = document.getElementById('scale-l-value');
+            if (!inputValueElement || !hValueElement || !sValueElement || !lValueElement) return;
+
+            const h = clampScaleValue(hValueElement.value, 0, 360, 220);
+            const s = clampScaleValue(sValueElement.value, 0, 100, 70);
+            const l = clampScaleValue(lValueElement.value, 0, 100, 50);
+            inputValueElement.value = `hsl(${h} ${s}% ${l}%)`;
+        }
+
+        function updateScaleSliderStyles(h, s, l) {
+            const hSlider = document.getElementById('scale-h-slider');
+            const sSlider = document.getElementById('scale-s-slider');
+            const lSlider = document.getElementById('scale-l-slider');
+            if (hSlider) {
+                hSlider.style.setProperty(
+                    '--scale-track',
+                    'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)'
+                );
+            }
+            if (sSlider) {
+                sSlider.style.setProperty(
+                    '--scale-track',
+                    `linear-gradient(to right, hsl(${h} 0% ${l}%), hsl(${h} 100% ${l}%))`
+                );
+            }
+            if (lSlider) {
+                lSlider.style.setProperty(
+                    '--scale-track',
+                    `linear-gradient(to right, hsl(${h} ${s}% 0%), hsl(${h} ${s}% 50%), hsl(${h} ${s}% 100%))`
+                );
+            }
+        }
+
+        function syncScaleHslControl(channel, source) {
+            const max = channel === 'h' ? 360 : 100;
+            const slider = document.getElementById(`scale-${channel}-slider`);
+            const valueInput = document.getElementById(`scale-${channel}-value`);
+            if (!slider || !valueInput) return;
+
+            const rawValue = source === 'slider' ? slider.value : valueInput.value;
+            const nextValue = clampScaleValue(
+                rawValue,
+                0,
+                max,
+                channel === 'h' ? 220 : (channel === 's' ? 70 : 50)
+            );
+
+            slider.value = String(nextValue);
+            valueInput.value = String(nextValue);
+            syncScaleHexFromHslControls();
+            scheduleScaleRegenerate();
+        }
+
+        function syncScaleHexFromHslControls() {
+            const hValueElement = document.getElementById('scale-h-value');
+            const sValueElement = document.getElementById('scale-s-value');
+            const lValueElement = document.getElementById('scale-l-value');
+            const hexInput = document.getElementById('scale-hex-value');
+            const swatch = document.getElementById('scale-hex-swatch');
+            if (!hValueElement || !sValueElement || !lValueElement || !hexInput || !swatch) return;
+
+            const h = clampScaleValue(hValueElement.value, 0, 360, 220);
+            const s = clampScaleValue(sValueElement.value, 0, 100, 70);
+            const l = clampScaleValue(lValueElement.value, 0, 100, 50);
+            const hex = hslToHex(h, s, l).toUpperCase();
+            hexInput.value = hex;
+            swatch.style.backgroundColor = hex;
+            updateScaleHslInputField();
+            updateScaleSliderStyles(h, s, l);
+        }
+
+        function syncScaleControlsFromHexInput(scheduleGenerate = false) {
+            const hexInput = document.getElementById('scale-hex-value');
+            const swatch = document.getElementById('scale-hex-swatch');
+            if (!hexInput || !swatch) return;
+
+            const normalizedHex = normalizeHexInputUi(hexInput.value);
+            if (!normalizedHex) return;
+
+            const hsl = hexToHslUi(normalizedHex);
+            if (!hsl) return;
+
+            hexInput.value = normalizedHex.toUpperCase();
+            swatch.style.backgroundColor = normalizedHex;
+            ['h', 's', 'l'].forEach(channel => {
+                const slider = document.getElementById(`scale-${channel}-slider`);
+                const valueInput = document.getElementById(`scale-${channel}-value`);
+                if (slider) slider.value = String(hsl[channel]);
+                if (valueInput) valueInput.value = String(hsl[channel]);
+            });
+
+            updateScaleHslInputField();
+            updateScaleSliderStyles(hsl.h, hsl.s, hsl.l);
+            if (scheduleGenerate) {
+                scheduleScaleRegenerate();
+            }
+        }
+
+        function toggleScaleNameLock() {
+            const lockButton = document.getElementById('scale-name-lock');
+            if (!lockButton) return;
+            const isLocked = lockButton.dataset.locked === 'true';
+            lockButton.dataset.locked = isLocked ? 'false' : 'true';
+            lockButton.textContent = isLocked ? 'Auto' : 'Locked';
+            lockButton.classList.toggle('border-gray-900', !isLocked);
+            lockButton.classList.toggle('text-gray-900', !isLocked);
+        }
+
+        function isScaleNameLocked() {
+            const lockButton = document.getElementById('scale-name-lock');
+            return lockButton ? lockButton.dataset.locked === 'true' : false;
+        }
+
+        function scheduleScaleRegenerate() {
+            if (scaleRegenerateTimeout) {
+                clearTimeout(scaleRegenerateTimeout);
+            }
+            scaleRegenerateTimeout = setTimeout(() => {
+                generateScaleFromControls(false, true);
+            }, 120);
+        }
+
+        function postTailwindScaleRequest(baseHex, colorName, nameLocked) {
+            const normalizedHex = normalizeHexInputUi(baseHex);
+            if (!normalizedHex) return;
+
+            const culoriScale = generateScaleWithCulori(normalizedHex);
+            parent.postMessage({
+                pluginMessage: {
+                    type: 'generate-scale',
+                    inputType: 'hex',
+                    inputValue: normalizedHex,
+                    baseColor: normalizedHex,
+                    colorScale: culoriScale || undefined,
+                    colorName: nameLocked ? colorName : '',
+                    nameLocked
+                }
+            }, '*');
+        }
+
+        function initializeScaleControls() {
+            const hexInput = document.getElementById('scale-hex-value');
+            if (!hexInput) return;
+
+            const lockButton = document.getElementById('scale-name-lock');
+            if (lockButton) {
+                lockButton.classList.toggle('border-gray-900', lockButton.dataset.locked === 'true');
+                lockButton.classList.toggle('text-gray-900', lockButton.dataset.locked === 'true');
+            }
+
+            hexInput.addEventListener('input', () => syncScaleControlsFromHexInput(true));
+            hexInput.addEventListener('change', () => syncScaleControlsFromHexInput(true));
+
+            ['h', 's', 'l'].forEach(channel => {
+                const slider = document.getElementById(`scale-${channel}-slider`);
+                const valueInput = document.getElementById(`scale-${channel}-value`);
+                if (slider) {
+                    slider.addEventListener('input', () => syncScaleHslControl(channel, 'slider'));
+                }
+                if (valueInput) {
+                    valueInput.addEventListener('input', () => syncScaleHslControl(channel, 'value'));
+                }
+            });
+
+            syncScaleControlsFromHexInput(false);
+        }
+
+        function generateScaleFromControls(forceRandom = false, fromLiveUpdate = false) {
+            const colorNameElement = document.getElementById('scale-color-name');
+            const hexInput = document.getElementById('scale-hex-value');
+            const nameLocked = isScaleNameLocked();
+            const colorName = colorNameElement ? colorNameElement.value.trim() : '';
+
+            if (forceRandom) {
+                const randomHex = generateRandomScaleHex();
+                postTailwindScaleRequest(randomHex, colorName, nameLocked);
+                return;
+            }
+
+            const normalizedHex = normalizeHexInputUi(hexInput ? hexInput.value : '');
+            if (!normalizedHex) {
+                if (!fromLiveUpdate) {
+                    console.warn('Enter a valid hex value');
+                }
+                return;
+            }
+            postTailwindScaleRequest(normalizedHex, colorName, nameLocked);
         }
 
         function checkAnswer(answerString) {
@@ -666,22 +1419,26 @@
 
         // Event listeners for action buttons
         document.getElementById('add-to-figma-button').onclick = () => {
-            const currentFeature = document.getElementById('feature-title').textContent;
-            if (currentFeature === 'Color Palette') {
-                parent.postMessage({ pluginMessage: { type: 'add-palette-to-figma' } }, '*');
-            } else if (currentFeature === 'Color Scale') {
-                addScaleToFigma();
+            const createVariablesToggle = document.getElementById('create-variables-toggle');
+            const createVariables = createVariablesToggle ? createVariablesToggle.checked : true;
+            if (currentFeatureName === 'Color Palette') {
+                parent.postMessage({ pluginMessage: { type: 'add-palette-to-figma', createVariables } }, '*');
+            } else if (currentFeatureName === 'Tailwind CSS') {
+                parent.postMessage({ pluginMessage: { type: 'add-scale-to-figma', createVariables } }, '*');
             }
         };
 
         document.getElementById('generate-button').onclick = () => {
-            const currentFeature = document.getElementById('feature-title').textContent;
-            if (currentFeature === 'Color Palette') {
+            if (currentFeatureName === 'Color Palette') {
                 parent.postMessage({ pluginMessage: { type: 'generate-palette' } }, '*');
-            } else if (currentFeature === 'Color Scale') {
-                parent.postMessage({ pluginMessage: { type: 'generate-scale' } }, '*');
-            } else if (currentFeature === 'Gradient') {
-                parent.postMessage({ pluginMessage: { type: 'generate-gradient' } }, '*');
+            } else if (currentFeatureName === 'Tailwind CSS') {
+                if (isScaleNameLocked()) {
+                    generateScaleFromControls();
+                } else {
+                    generateScaleFromControls(true);
+                }
+            } else if (currentFeatureName === 'Gradient') {
+                requestGradientGeneration();
             }
         };
 
@@ -696,8 +1453,7 @@
                     initializeColorPickers();
                 } else if (message.title === 'Fun') {
                     // Initialize game when showing game UI
-                    currentHSLColor = generateRandomColor();
-                    differentColorIndex = Math.floor(Math.random() * 6);
+                    startNextGameRound();
                 }
             } else if (message.type === 'update-gradient') {
                 updateGradientPreview(message.gradient);
@@ -706,19 +1462,17 @@
             } else if (message.type === 'show-game-ui') {
                 showGameUI(message.html);
                 // Initialize game when showing game UI
-                currentHSLColor = generateRandomColor();
-                differentColorIndex = Math.floor(Math.random() * 6);
+                startNextGameRound();
             }
         };
 
         // Additional functions
         function startHSLGame() {
-            currentHSLColor = generateRandomColor();
-            differentColorIndex = Math.floor(Math.random() * 6);
             score = 0;
             currentStreak = 0;
             difficulty = 1;
             gameOver = false;
+            startNextGameRound();
             updateGameUI();
         }
 
@@ -735,14 +1489,13 @@
                     bestStreak = currentStreak;
                 }
                 score++;
-                difficulty += 0.2;
+                difficulty += 0.16;
                 
                 // Celebrate streak milestones
                 celebrateStreak(currentStreak);
                 
                 // Generate new colors
-                currentHSLColor = generateRandomColor();
-                differentColorIndex = Math.floor(Math.random() * 6);
+                startNextGameRound();
             } else {
                 gameOver = true;
                 currentStreak = 0;
@@ -757,15 +1510,19 @@
 
         function applyGradientToSelection(gradient) {
           console.log('applyGradientToSelection called with gradient:', gradient);
+          const gradientType = gradient.type || 'GRADIENT_LINEAR';
+          const gradientTransform = Array.isArray(gradient.gradientTransform)
+            ? gradient.gradientTransform
+            : [
+                [1, 0, 0],
+                [0, 1, 0],
+              ];
           parent.postMessage({
             pluginMessage: {
               type: 'apply-gradient',
               gradient: {
-                type: 'GRADIENT_LINEAR',
-                gradientTransform: [
-                  [1, 0, 0],
-                  [0, 1, 0],
-                ],
+                type: gradientType,
+                gradientTransform,
                 gradientStops: gradient.gradientStops.map(stop => ({
                   position: stop.position,
                   color: {
@@ -804,7 +1561,17 @@
             const stops = gradient.gradientStops
                 .map(stop => `rgba(${stop.color.r * 255}, ${stop.color.g * 255}, ${stop.color.b * 255}, ${stop.color.a}) ${stop.position * 100}%`)
                 .join(', ');
-            return `linear-gradient(to right, ${stops})`;
+            switch (gradient.type) {
+                case 'GRADIENT_RADIAL':
+                    return `radial-gradient(circle, ${stops})`;
+                case 'GRADIENT_ANGULAR':
+                    return `conic-gradient(from 0deg, ${stops})`;
+                case 'GRADIENT_DIAMOND':
+                    return `conic-gradient(from 45deg at 50% 50%, ${stops})`;
+                case 'GRADIENT_LINEAR':
+                default:
+                    return `linear-gradient(to right, ${stops})`;
+            }
         }
 
         function getRandomGradientDirection() {
@@ -920,14 +1687,13 @@
                     bestStreak = currentStreak;
                 }
                 score++;
-                difficulty += 0.2;
+                difficulty += 0.16;
                 
                 // Celebrate streak milestones
                 celebrateStreak(currentStreak);
                 
                 // Generate new colors
-                currentHSLColor = generateRandomColor();
-                differentColorIndex = Math.floor(Math.random() * 6);
+                startNextGameRound();
             } else {
                 gameOver = true;
                 currentStreak = 0;
@@ -938,15 +1704,16 @@
 
         // Modify the createGameHTML function to show streaks
         function createGameHTML() {
+            const config = getGameDifficultyConfig(score);
+            if (!Number.isInteger(differentColorIndex) || differentColorIndex < 0 || differentColorIndex >= config.tiles) {
+                differentColorIndex = Math.floor(Math.random() * config.tiles);
+            }
+
             // Generate colors for the game
             const colors = [];
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < config.tiles; i++) {
                 if (i === differentColorIndex) {
-                    const slightlyDifferentColor = {
-                        h: (currentHSLColor.h + (8 / Math.sqrt(difficulty))) % 360,
-                        s: currentHSLColor.s,
-                        l: currentHSLColor.l,
-                    };
+                    const slightlyDifferentColor = createDifferentGameColor(currentHSLColor, config);
                     colors.push(hslToHex(
                         slightlyDifferentColor.h,
                         slightlyDifferentColor.s,
@@ -965,22 +1732,22 @@
             let gameUI;
             switch(gameStyle) {
                 case 'win95':
-                    gameUI = createRetroGameUI(colors);
+                    gameUI = createRetroGameUI(colors, config);
                     break;
                 default:
-                    gameUI = createModernGameUI(colors);
+                    gameUI = createModernGameUI(colors, config);
             }
 
             return gameUI; // Return just the game UI without the style switcher
         }
 
-        function createModernGameUI(colors) {
+        function createModernGameUI(colors, config) {
             return `
                 <div class="w-full">
                     <h1 class="text-sm font-medium text-center mb-4 text-gray-500">
-                        Find the block with a different shade or brightness.
+                        Find the tile with the subtle color difference.
                     </h1>
-                    <div class="flex justify-between mb-2 px-1">
+                    <div class="flex justify-between mb-1 px-1">
                         <div class="text-base">
                             <div class="text-[#1D1D1F] font-medium">Score</div>
                             <div class="text-2xl font-semibold">${score}</div>
@@ -994,8 +1761,11 @@
                             <div class="text-2xl font-semibold">${bestStreak}</div>
                         </div>
                     </div>
+                    <div class="text-xs text-center text-gray-500 mb-2">
+                        Level: ${config.level} | Grid: ${config.tiles} tiles
+                    </div>
                     <div id="streak-message-container" class="h-6 flex items-center justify-center"></div>
-                    <div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="grid ${config.columnsClass} gap-3 mb-4">
                         ${colors.map((color, index) => `
                             <button 
                                 class="aspect-square rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md ${
@@ -1014,7 +1784,7 @@
                         ? `
                             <div class="mt-4 text-center">
                                 <div class="text-base font-medium mb-4">
-                                    Game Over | Final Score: ${score} | Best Streak: ${bestStreak}
+                                    Game Over | Final Score: ${score} | Best Streak: ${bestStreak} | Peak: ${getGameDifficultyConfig(highestScore).level}
                                 </div>
                                 <button 
                                     class="bg-black text-white font-medium py-2 px-6 rounded-full hover:bg-gray-800 transition-colors" 
@@ -1034,7 +1804,7 @@
             `;
         }
 
-        function createRetroGameUI(colors) {
+        function createRetroGameUI(colors, config) {
     return `
         <div class="retro-window w-full h-full flex flex-col">
             <div class="retro-title-bar mb-0">
@@ -1053,7 +1823,7 @@
                     </div>
                 </div>
                 <div id="streak-message-container" class="flex items-center justify-center mb-0"></div>
-                <div class="grid grid-cols-3 gap-1 mb-0">
+                <div class="grid ${config.columnsClass} gap-1 mb-0">
                     ${colors.map((color, index) => `
                         <button 
                             class="retro-button w-full aspect-square ${
@@ -1067,16 +1837,16 @@
                         </button>
                     `).join("")}
                 </div>
-                ${
-                    gameOver 
-                    ? `
-                        <div class="text-center mt-2">
-                            <div class="retro-message mb-2">
-                                GAME OVER | FINAL SCORE: ${score} | BEST STREAK: ${bestStreak}
-                            </div>
-                            <button class="retro-button px-8 py-2" onclick="restartGame()">
-                                New Game
-                            </button>
+                    ${
+                        gameOver 
+                        ? `
+                            <div class="text-center mt-2">
+                                <div class="retro-message mb-2">
+                                    GAME OVER | SCORE: ${score} | BEST: ${bestStreak} | LEVEL: ${config.level}
+                                </div>
+                                <button class="retro-button px-8 py-2" onclick="restartGame()">
+                                    New Game
+                                </button>
                         </div>
                     ` 
                     : ''
